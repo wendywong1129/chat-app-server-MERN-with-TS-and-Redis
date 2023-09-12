@@ -7,15 +7,15 @@ import compression from 'compression';
 import cookieSession from 'cookie-session';
 import HTTP_STATUS from 'http-status-codes';
 import 'express-async-errors';
-import { config } from './config';
+import { config } from '@root/config';
 import { Server } from 'socket.io';
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
-import applicationRoutes from './routes';
-import { IErrorResponse, CustomError } from './shared/globals/helpers/error-handler';
+import applicationRoutes from '@root/routes';
+import { IErrorResponse, CustomError } from '@global/helpers/error-handler';
 import Logger from 'bunyan';
 
-const SERVER_PORT = 6000;
+const SERVER_PORT = 5005;
 
 const log: Logger = config.createLogger('setupServer');
 
@@ -118,9 +118,12 @@ export class ChattyServer {
     log.info(`Worker with process id of ${process.pid} has started...`);
     httpServer.listen(SERVER_PORT, () => {
       // console.log(`Server is running on port ${SERVER_PORT}`);
-      log.info(`Server running on port ${SERVER_PORT}`);
+      log.info(`Server is running on port ${SERVER_PORT}`);
     });
   }
 
-  private socketIOConnections(io: Server): void {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private socketIOConnections(io: Server): void {
+    log.info('socketIOConnections');
+  }
 }
