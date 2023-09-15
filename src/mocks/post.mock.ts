@@ -1,6 +1,6 @@
-import { AuthPayload } from '@auth/interfaces/auth.interface';
 import { Response } from 'express';
 import mongoose from 'mongoose';
+import { AuthPayload } from '@auth/interfaces/auth.interface';
 import { existingUser } from '@root/mocks/user.mock';
 import { IPostDocument } from '@post/interfaces/post.interface';
 
