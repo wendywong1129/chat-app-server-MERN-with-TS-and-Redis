@@ -14,6 +14,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import applicationRoutes from '@root/routes';
 import { IErrorResponse, CustomError } from '@global/helpers/error-handler';
 import Logger from 'bunyan';
+import { SocketIOPostHandler } from '@socket/post';
 
 const SERVER_PORT = 5005;
 
@@ -124,6 +125,9 @@ export class ChattyServer {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private socketIOConnections(io: Server): void {
-    log.info('socketIOConnections');
+    // log.info('socketIOConnections');
+    const postSocketHandler: SocketIOPostHandler = new SocketIOPostHandler(io);
+
+    postSocketHandler.listen();
   }
 }
