@@ -1,0 +1,49 @@
+@baseUrl = http://localhost:5005
+@urlPath = api/v1
+
+###
+POST {{baseUrl}}/{{urlPath}}/post/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+# type - like | love | wow | happy | sad | angry
+# previousReaction (if it exist) - like | love | wow | happy | sad | angry
+# postReactions - increment new reaction by 1 and decrement previous reaction by 1
+
+{
+  "userTo": "65056951896a5d19fb8ddf71",
+  "postId": "65056ad6896a5d19fb8ddf85",
+  "type": "love",
+  "previousReaction": "",
+  "postReactions": {"like": 0,"love": 1,"happy": 0,"sad": 0,"wow": 0,"angry": 0},
+  "profilePicture": "https://res.cloudinary.com/dbbeyjd5f/image/upload/v1694515084/65003f8b8655afe2a1c4be4a"
+}
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/post/reaction/65054f1ba7467e6c8f724b1d/sad/{"like": 0,"love": 0,"happy": 0,"sad": 0,"wow": 0,"angry": 0}
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{}
+
+###
+GET {{baseUrl}}/{{urlPath}}/post/reactions/65054f1ba7467e6c8f724b1d
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/post/single/reaction/username/summer/65054f1ba7467e6c8f724b1d
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/post/reactions/username/summer
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+
