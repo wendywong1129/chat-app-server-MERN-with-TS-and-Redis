@@ -11,9 +11,9 @@ withCredentials: true
 # Feelings - like | love | wow | happy | sad | angry
 
 {
-  "post": "This is my second post",
+  "post": "This is my first post",
   "bgColor": "#4aa1f3",
-  "privacy": "Private",
+  "privacy": "Public",
   "gifUrl": "",
   "profilePicture": "https://res.cloudinary.com/dbbeyjd5f/image/upload/v1694515084/65003f8b8655afe2a1c4be4a",
   "feelings": ""
