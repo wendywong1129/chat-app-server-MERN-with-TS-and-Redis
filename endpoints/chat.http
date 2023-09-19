@@ -1,0 +1,86 @@
+@baseUrl = http://localhost:5005
+@urlPath = api/v1
+
+###
+POST {{baseUrl}}/{{urlPath}}/chat/message
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "conversationId": "65093b70896d7a6176cbab8e",
+  "receiverId": "6506c7f563641b1d62bf0418",
+  "receiverUsername": "Autumn",
+  "receiverAvatarColor": "yellow",
+  "receiverProfilePicture": "https://res.cloudinary.com/dbbeyjd5f/image/upload/v1694943223/6506c7f563641b1d62bf0418",
+  "body": "I'm Summer.",
+  "gifUrl": "",
+  "isRead": false,
+  "selectedImage": ""
+}
+
+###
+POST {{baseUrl}}/{{urlPath}}/chat/message/add-chat-users
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "userOne": "6506c7c863641b1d62bf0403",
+  "userTwo": "6506c7f563641b1d62bf0418"
+}
+
+###
+POST {{baseUrl}}/{{urlPath}}/chat/message/remove-chat-users
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "userOne": "",
+  "userTwo": ""
+}
+
+###
+GET {{baseUrl}}/{{urlPath}}/chat/message/conversation-list
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+GET {{baseUrl}}/{{urlPath}}/chat/message/user/6506c7f563641b1d62bf0418
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+DELETE {{baseUrl}}/{{urlPath}}/chat/message/mark-as-deleted/65093b70896d7a6176cbab8d/6506c7c863641b1d62bf0403/6506c7f563641b1d62bf0418/deleteForEveryone
+# For this endpoint, the type is either deleteForMe or deleteForEveryone
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+###
+PUT {{baseUrl}}/{{urlPath}}/chat/message/mark-as-read
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+  "senderId": "6506c7c863641b1d62bf0403",
+  "receiverId": "6506c7f563641b1d62bf0418"
+}
+
+###
+PUT {{baseUrl}}/{{urlPath}}/chat/message/reaction
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+# For this endpoint, the type is either add or remove
+{
+  "conversationId": "65093b70896d7a6176cbab8e",
+  "messageId": "65093b70896d7a6176cbab8d",
+  "reaction": "love",
+  "type": "add"
+}
