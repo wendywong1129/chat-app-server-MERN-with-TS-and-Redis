@@ -107,6 +107,20 @@ export class UserCache extends BaseCache {
     }
   }
 
+  public async updateSingleUserItemInCache(userId: string, prop: string, value: UserItem): Promise<IUserDocument | null> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+      await this.client.HSET(`users:${userId}`, `${prop}`, JSON.stringify(value));
+      const response: IUserDocument = (await this.getUserFromCache(userId)) as IUserDocument;
+      return response;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
   public async getUsersFromCache(start: number, end: number, excludedUserKey: string): Promise<IUserDocument[]> {
     try {
       if (!this.client.isOpen) {
@@ -141,6 +155,19 @@ export class UserCache extends BaseCache {
         userReplies.push(reply);
       }
       return userReplies;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  public async getTotalUsersInCache(): Promise<number> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+      const count: number = await this.client.ZCARD('user');
+      return count;
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');
@@ -183,33 +210,6 @@ export class UserCache extends BaseCache {
         reply.quote = Helpers.parseJson(`${reply.quote}`);
       }
       return replies;
-    } catch (error) {
-      log.error(error);
-      throw new ServerError('Server error. Try again.');
-    }
-  }
-
-  public async updateSingleUserItemInCache(userId: string, prop: string, value: UserItem): Promise<IUserDocument | null> {
-    try {
-      if (!this.client.isOpen) {
-        await this.client.connect();
-      }
-      await this.client.HSET(`users:${userId}`, `${prop}`, JSON.stringify(value));
-      const response: IUserDocument = (await this.getUserFromCache(userId)) as IUserDocument;
-      return response;
-    } catch (error) {
-      log.error(error);
-      throw new ServerError('Server error. Try again.');
-    }
-  }
-
-  public async getTotalUsersInCache(): Promise<number> {
-    try {
-      if (!this.client.isOpen) {
-        await this.client.connect();
-      }
-      const count: number = await this.client.ZCARD('user');
-      return count;
     } catch (error) {
       log.error(error);
       throw new ServerError('Server error. Try again.');

@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io';
 
 export let socketIOUserObject: Server;
 export const connectedUsersMap: Map<string, string> = new Map();
+
 let users: string[] = [];
 
 export class SocketIOUserHandler {
