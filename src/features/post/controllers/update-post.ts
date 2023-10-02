@@ -4,17 +4,10 @@ import HTTP_STATUS from 'http-status-codes';
 import { postQueue } from '@service/queues/post.queue';
 import { socketIOPostObject } from '@socket/post';
 import { joiValidation } from '@global/decorators/joi-validation.decorators';
-import {
-  postSchema,
-  postWithImageSchema
-  // postWithVideoSchema
-} from '@post/schemes/post.schemes';
+import { postSchema, postWithImageSchema, postWithVideoSchema } from '@post/schemes/post.schemes';
 import { IPostDocument } from '@post/interfaces/post.interface';
 import { UploadApiResponse } from 'cloudinary';
-import {
-  uploads
-  // videoUpload
-} from '@global/helpers/cloudinary-upload';
+import { uploads, videoUpload } from '@global/helpers/cloudinary-upload';
 import { BadRequestError } from '@global/helpers/error-handler';
 import { imageQueue } from '@service/queues/image.queue';
 
@@ -52,7 +45,7 @@ export class Update {
     if (imgId && imgVersion) {
       Update.prototype.updatePost(req);
     } else {
-      const result: UploadApiResponse = await Update.prototype.addImageToExistingPost(req);
+      const result: UploadApiResponse = await Update.prototype.addFileToExistingPost(req);
       if (!result.public_id) {
         throw new BadRequestError(result.message);
       }
@@ -83,13 +76,14 @@ export class Update {
     postQueue.addPostJob('updatePostInDB', { key: postId, value: postUpdated });
   }
 
-  private async addImageToExistingPost(req: Request): Promise<UploadApiResponse> {
+  // private async addImageToExistingPost(req: Request): Promise<UploadApiResponse> {
+  private async addFileToExistingPost(req: Request): Promise<UploadApiResponse> {
     const { post, bgColor, feelings, privacy, gifUrl, profilePicture, image, video } = req.body;
     const { postId } = req.params;
-    const result: UploadApiResponse = (await uploads(image)) as UploadApiResponse;
-    // const result: UploadApiResponse = image
-    //   ? ((await uploads(image)) as UploadApiResponse)
-    //   : ((await videoUpload(video)) as UploadApiResponse);
+    // const result: UploadApiResponse = (await uploads(image)) as UploadApiResponse;
+    const result: UploadApiResponse = image
+      ? ((await uploads(image)) as UploadApiResponse)
+      : ((await videoUpload(video)) as UploadApiResponse);
     if (!result?.public_id) {
       return result;
     }
@@ -122,17 +116,17 @@ export class Update {
     return result;
   }
 
-  // @joiValidation(postWithVideoSchema)
-  // public async postWithVideo(req: Request, res: Response): Promise<void> {
-  //   const { videoId, videoVersion } = req.body;
-  //   if (videoId && videoVersion) {
-  //     Update.prototype.updatePost(req);
-  //   } else {
-  //     const result: UploadApiResponse = await Update.prototype.addImageToExistingPost(req);
-  //     if (!result.public_id) {
-  //       throw new BadRequestError(result.message);
-  //     }
-  //   }
-  //   res.status(HTTP_STATUS.OK).json({ message: 'Post with video updated successfully' });
-  // }
+  @joiValidation(postWithVideoSchema)
+  public async postWithVideo(req: Request, res: Response): Promise<void> {
+    const { videoId, videoVersion } = req.body;
+    if (videoId && videoVersion) {
+      Update.prototype.updatePost(req);
+    } else {
+      const result: UploadApiResponse = await Update.prototype.addFileToExistingPost(req);
+      if (!result.public_id) {
+        throw new BadRequestError(result.message);
+      }
+    }
+    res.status(HTTP_STATUS.OK).json({ message: 'Post with video updated successfully' });
+  }
 }
