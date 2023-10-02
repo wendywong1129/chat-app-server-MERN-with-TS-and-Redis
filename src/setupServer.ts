@@ -7,15 +7,22 @@ import compression from 'compression';
 import cookieSession from 'cookie-session';
 import HTTP_STATUS from 'http-status-codes';
 import 'express-async-errors';
-import { config } from './config';
+import { config } from '@root/config';
 import { Server } from 'socket.io';
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
-import applicationRoutes from './routes';
-import { IErrorResponse, CustomError } from './shared/globals/helpers/error-handler';
+import applicationRoutes from '@root/routes';
+import { IErrorResponse, CustomError } from '@global/helpers/error-handler';
 import Logger from 'bunyan';
+import { SocketIOPostHandler } from '@socket/post';
+import { SocketIOFollowerHandler } from '@socket/follower';
+import { SocketIOUserHandler } from '@socket/user';
+import { SocketIONotificationHandler } from '@socket/notification';
+import { SocketIOImageHandler } from '@socket/image';
+import { SocketIOChatHandler } from '@socket/chat';
+import apiStats from 'swagger-stats';
 
-const SERVER_PORT = 6000;
+const SERVER_PORT = 5005;
 
 const log: Logger = config.createLogger('setupServer');
 
@@ -30,6 +37,7 @@ export class ChattyServer {
     this.securityMiddleware(this.app);
     this.standardMiddleware(this.app);
     this.routesMiddleware(this.app);
+    this.apiMonitoring(this.app);
     this.globalErrorHandler(this.app);
     this.startServer(this.app);
   }
@@ -69,6 +77,14 @@ export class ChattyServer {
     applicationRoutes(app);
   }
 
+  private apiMonitoring(app: Application): void {
+    app.use(
+      apiStats.getMiddleware({
+        uriPath: '/api-monitoring'
+      })
+    );
+  }
+
   private globalErrorHandler(app: Application): void {
     // Handling URLS that does not exist
     app.all('*', (req: Request, res: Response) => {
@@ -87,6 +103,10 @@ export class ChattyServer {
 
   // private startServer(app: Application): void {}
   private async startServer(app: Application): Promise<void> {
+    if (!config.JWT_TOKEN) {
+      throw new Error('JWT_TOKEN must be provided');
+    }
+
     try {
       const httpServer: http.Server = new http.Server(app);
       const socketIO: Server = await this.createSocketIO(httpServer);
@@ -118,9 +138,25 @@ export class ChattyServer {
     log.info(`Worker with process id of ${process.pid} has started...`);
     httpServer.listen(SERVER_PORT, () => {
       // console.log(`Server is running on port ${SERVER_PORT}`);
-      log.info(`Server running on port ${SERVER_PORT}`);
+      log.info(`Server is running on port ${SERVER_PORT}`);
     });
   }
 
-  private socketIOConnections(io: Server): void {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private socketIOConnections(io: Server): void {
+    // log.info('socketIOConnections');
+    const postSocketHandler: SocketIOPostHandler = new SocketIOPostHandler(io);
+    const followerSocketHandler: SocketIOFollowerHandler = new SocketIOFollowerHandler(io);
+    const userSocketHandler: SocketIOUserHandler = new SocketIOUserHandler(io);
+    const chatSocketHandler: SocketIOChatHandler = new SocketIOChatHandler(io);
+    const notificationSocketHandler: SocketIONotificationHandler = new SocketIONotificationHandler();
+    const imageSocketHandler: SocketIOImageHandler = new SocketIOImageHandler();
+
+    postSocketHandler.listen();
+    followerSocketHandler.listen();
+    userSocketHandler.listen();
+    chatSocketHandler.listen();
+    notificationSocketHandler.listen(io);
+    imageSocketHandler.listen(io);
+  }
 }
