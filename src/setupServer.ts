@@ -20,6 +20,7 @@ import { SocketIOUserHandler } from '@socket/user';
 import { SocketIONotificationHandler } from '@socket/notification';
 import { SocketIOImageHandler } from '@socket/image';
 import { SocketIOChatHandler } from '@socket/chat';
+import apiStats from 'swagger-stats';
 
 const SERVER_PORT = 5005;
 
@@ -36,6 +37,7 @@ export class ChattyServer {
     this.securityMiddleware(this.app);
     this.standardMiddleware(this.app);
     this.routesMiddleware(this.app);
+    this.apiMonitoring(this.app);
     this.globalErrorHandler(this.app);
     this.startServer(this.app);
   }
@@ -75,6 +77,14 @@ export class ChattyServer {
     applicationRoutes(app);
   }
 
+  private apiMonitoring(app: Application): void {
+    app.use(
+      apiStats.getMiddleware({
+        uriPath: '/api-monitoring'
+      })
+    );
+  }
+
   private globalErrorHandler(app: Application): void {
     // Handling URLS that does not exist
     app.all('*', (req: Request, res: Response) => {
@@ -93,6 +103,10 @@ export class ChattyServer {
 
   // private startServer(app: Application): void {}
   private async startServer(app: Application): Promise<void> {
+    if (!config.JWT_TOKEN) {
+      throw new Error('JWT_TOKEN must be provided');
+    }
+
     try {
       const httpServer: http.Server = new http.Server(app);
       const socketIO: Server = await this.createSocketIO(httpServer);
